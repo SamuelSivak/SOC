@@ -1,0 +1,184 @@
+# Projekt: Neuronová sieť pre rozpoznávanie čísel s webovým rozhraním
+
+## 1. Implementácia neuronovej siete v C
+### 1.1 Základná štruktúra
+- Vytvorenie základných dátových štruktúr:
+  - Neuron
+  - Vrstva
+  - Sieť
+  - Matice pre výpočty (28x28 pixelov vstup)
+
+### 1.2 Implementácia funkcionalít
+- Forward propagation
+- Backpropagation
+- Aktivačné funkcie (ReLU, Softmax)
+- Funkcia straty (Cross-entropy)
+- Optimalizačné algoritmy (SGD, Adam)
+
+### 1.3 Trénovanie siete
+- Implementácia načítavania MNIST datasetu (70,000 obrázkov)
+- Preprocessing dát:
+  - Normalizácia na 28x28 pixelov
+  - Centrovanie a škálovanie vstupu
+  - Konverzia na čiernobiele hodnoty (0-1)
+- Trénovací pipeline
+- Validácia a testovanie
+- Ukladanie natrénovaných váh
+
+## 2. Webové rozhranie
+### 2.1 Frontend
+- Hlavná navigácia:
+  - Logo "I AM A.I."
+  - Menu položky (Read, Build, Experiment, Visit)
+  - Jazykové prepínače (EN/DE)
+
+- Hlavná sekcia "Neural Numbers":
+  - Nadpis a popisný text
+  - Interaktívny canvas na kreslenie:
+    - 28x28 pixelov plocha
+    - Real-time normalizácia vstupu
+    - Možnosť kresliť malé čísla v rohoch
+  - Vizualizácia výsledkov:
+    - 10 stĺpcov pre čísla 0-9
+    - Animované stĺpce zobrazujúce istotu
+    - Real-time aktualizácia počas kreslenia
+  - Kontrolné prvky:
+    - Tlačidlo na vymazanie
+    - Tlačidlo na rozpoznanie
+    - Možnosť prepínať medzi rôznymi úrovňami trénovania:
+      - 300 obrázkov
+      - 1500 obrázkov
+      - 70,000 obrázkov (plne natrénovaná)
+
+- Sekcia "Further experiments":
+  - Popis experimentov s rôznymi tvarmi
+  - Príklady na vyskúšanie (plus, x, rovnobežné čiary)
+  - Možnosť kresliť čísla pomocou bodiek alebo čiarok
+
+- Dizajn:
+  - Čistý, minimalistický vzhľad
+  - Tmavé pozadie
+  - Animované prechody
+  - Responzívny dizajn
+  - Interaktívne hover efekty
+
+### 2.2 Backend
+#### 2.2.1 Architektúra
+- Node.js/Express.js server
+- RESTful API architektúra
+- Middleware vrstva pre:
+  - CORS handling
+  - Request logging
+  - Error handling
+  - Rate limiting
+  - Request validation
+
+#### 2.2.2 API Endpointy
+- POST /api/predict
+  - Vstup: JSON s pixel dátami (28x28)
+  - Validácia vstupu
+  - Spracovanie obrázka
+  - Volanie C wrapperu
+  - Výstup: JSON s predikciami pre každé číslo (0-9)
+  - Error handling
+
+- GET /api/health
+  - Kontrola stavu servera
+  - Kontrola dostupnosti C wrapperu
+  - Kontrola pamäte a CPU
+  - Výstup: JSON so stavom systému
+
+- GET /api/model-info
+  - Informácie o natrénovanom modeli
+  - Verzia modelu
+  - Presnosť na testovacích dátach
+  - Čas trénovania
+
+#### 2.2.3 Spracovanie obrázkov
+- Preprocessing pipeline:
+  1. Normalizácia:
+     - Konverzia na 28x28 pixelov
+     - Interpolácia pre zachovanie pomeru strán
+  2. Centrovanie:
+     - Výpočet ťažiska obrázka
+     - Posun na stred
+  3. Škálovanie:
+     - Normalizácia na rozsah 0-1
+     - Aplikácia threshold pre lepšie rozlíšenie
+  4. Optimalizácia:
+     - Kompresia dát
+     - Konverzia na float32
+
+#### 2.2.4 C Wrapper
+- Implementácia v Node.js pomocou node-gyp
+- Funkcie:
+  - loadModel(path) - načítanie natrénovaného modelu
+  - predict(input) - predikcia na základe vstupu
+  - getModelInfo() - informácie o modeli
+- Error handling a logging
+- Memory management
+- Thread safety
+
+#### 2.2.5 Cachovanie
+- Redis cache server
+- Cachovanie:
+  - Predikcií pre často používané vstupy
+  - Modelu v pamäti
+  - Preprocessed obrázkov
+- Cache invalidation stratégia
+- TTL nastavenia
+
+#### 2.2.6 Logging a Monitoring
+- Winston logger
+- Logovanie:
+  - API requestov
+  - Chýb a výnimiek
+  - Výkonnostných metrík
+  - Systémových udalostí
+- Rotácia logov
+- Error tracking
+
+#### 2.2.7 Bezpečnosť
+- Input validation
+- Rate limiting
+- CORS policy
+- Request size limiting
+- Error message sanitization
+
+#### 2.2.8 Optimalizácie
+- Connection pooling
+- Request batching
+- Response compression
+- Memory optimization
+- CPU optimization
+
+### 2.3 Deployment
+- Docker kontajnerizácia
+- HTTPS zabezpečenie
+
+## 3. Integrácia
+### 3.1 Spojenie C a webu
+- Vytvorenie wrapperu pre C kód
+- Optimalizácia pre webové prostredie
+- Cachovanie výsledkov
+
+### 3.2 Optimalizácie
+- Kompresia obrázkov
+- Cachovanie
+- Load balancing
+
+## Technológie
+- C (neuronová sieť)
+- HTML5, CSS3, JavaScript (frontend)
+- Node.js/Python (backend)
+- Docker (kontajnerizácia)
+- Git (verziovanie)
+- Cloud platforma (AWS/GCP/Azure)
+
+## Požiadavky na systém
+- C kompilátor (GCC/Clang)
+- Node.js/Python
+- Docker
+- Git
+- Webový server
+- SSL certifikát 
