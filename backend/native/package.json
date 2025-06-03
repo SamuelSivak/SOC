@@ -1,0 +1,16 @@
+{
+  "name": "neural-network-native",
+  "version": "1.0.0",
+  "description": "Native bindings for neural network",
+  "main": "index.js",
+  "scripts": {
+    "install": "node-gyp rebuild",
+    "build": "node-gyp rebuild"
+  },
+  "dependencies": {
+    "node-addon-api": "^7.0.0"
+  },
+  "devDependencies": {
+    "node-gyp": "^10.0.1"
+  }
+} 
