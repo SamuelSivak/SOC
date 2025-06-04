@@ -1,1 +1,0 @@
-cmd_Release/neural_network.node := ln -f "Release/obj.target/neural_network.node" "Release/neural_network.node" 2>/dev/null || (rm -rf "Release/neural_network.node" && cp -af "Release/obj.target/neural_network.node" "Release/neural_network.node")

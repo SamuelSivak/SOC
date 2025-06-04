@@ -1,0 +1,464 @@
+/*
+ * ══════════════════════════════════════════════════════════════════════════════
+ * MARKNET NEURÓNOVÁ SIEŤ - PREVÁDZKOVÝ MANUÁL
+ * ══════════════════════════════════════════════════════════════════════════════
+ * 
+ * Profesionálny príručka príkazov a sprievodca systémovej administrácie
+ * pre MarkNET neurónový systém rozpoznávania číslic
+ * 
+ * Autor: Samuel Sivák
+ * Verzia: 2.0.0
+ * Posledná aktualizácia: 04.06.2025
+ * Systém: Ubuntu 22.04 LTS / DigitalOcean Infraštruktúra
+ * Doména: http://samuelsivaksoc.xyz
+ * 
+ * ══════════════════════════════════════════════════════════════════════════════
+ */
+
+//=============================================================================
+// OBSAH
+//=============================================================================
+/*
+ * 1. PREHĽAD ARCHITEKTÚRY SYSTÉMU
+ * 2. POSTUPY NASADENIA A INICIALIZÁCIE  
+ * 3. OPERÁCIE SPRÁVY SLUŽIEB
+ * 4. PROTOKOLY TRÉNOVANIA NEURÓNOVEJ SIETE
+ * 5. POSTUPY ZOSTAVENIA A KOMPILÁCIE
+ * 6. TESTOVANIE A VALIDÁCIA API
+ * 7. MONITOROVANIE A DIAGNOSTIKA SYSTÉMU
+ * 8. KONFIGURÁCIA BEZPEČNOSTI A FIREWALLU
+ * 9. ANALÝZA VÝKONU A OPTIMALIZÁCIA
+ * 10. ÚDRŽBA A RIEŠENIE PROBLÉMOV
+ * 11. POSTUPY NASADENIA DO PRODUKCIE
+ * 12. NÚDZOVÉ PROTOKOLY OBNOVY
+ */
+
+//=============================================================================
+// 1. PREHĽAD ARCHITEKTÚRY SYSTÉMU
+//=============================================================================
+
+/*
+ * Komponenty MarkNET systému:
+ * ├── Frontend služba (Python HTTP Server) - Port 8080
+ * ├── Backend API (Node.js Express) - Port 3000  
+ * ├── Engine neurónovej siete (C implementácia)
+ * ├── Repozitár modelov (binárne súbory modelov)
+ * └── Nginx Reverse Proxy (produkcia)
+ * 
+ * Sieťové prístupové body:
+ * - Produkcia: http://samuelsivaksoc.xyz
+ * - Lokálny vývoj: http://localhost:8080
+ * - API Endpoint: http://samuelsivaksoc.xyz/api/
+ */
+
+//=============================================================================
+// 2. POSTUPY NASADENIA A INICIALIZÁCIE
+//=============================================================================
+
+/*
+ * Počiatočné nastavenie systému - vykonať v postupnom poradí
+ */
+
+// 2.1 Inštalácia závislostí
+cd backend && npm install --production
+
+// 2.2 Kompilácia neurónovej siete
+make clean && make all
+
+// 2.3 Verifikácia zostavenia
+ls -la bin/mnist_train || echo "CHYBA: Zostavenie zlyhalo"
+
+// 2.4 Validácia modelu
+ls -la models/*.bin && echo "Modely neurónovej siete overené"
+
+// 2.5 Verifikácia konfigurácie služby
+nginx -t && echo "Nginx konfigurácia platná"
+
+//=============================================================================
+// 3. OPERÁCIE SPRÁVY SLUŽIEB  
+//=============================================================================
+
+/*
+ * Správa produkčných služieb
+ */
+
+// 3.1 Inicializácia backend služby
+cd backend && nohup node app.js > backend.log 2>&1 &
+echo "Backend služba spustená na porte 3000"
+
+// 3.2 Inicializácia frontend služby  
+cd frontend && nohup python3 -m http.server 8080 --bind 0.0.0.0 > frontend.log 2>&1 &
+echo "Frontend služba spustená na porte 8080"
+
+// 3.3 Správa Nginx Reverse Proxy
+sudo systemctl start nginx
+sudo systemctl enable nginx
+sudo systemctl status nginx
+
+// 3.4 Verifikácia zdravia služieb
+curl -f http://localhost:3000/api/health || echo "Backend služba nedostupná"
+curl -f http://localhost:8080 > /dev/null || echo "Frontend služba nedostupná"
+
+// 3.5 Správa procesov
+ps aux | grep -E "(node app.js|python3.*8080)" | grep -v grep
+
+// 3.6 Ukončenie služieb
+sudo pkill -f "node app.js"
+sudo pkill -f "python3.*8080"
+
+//=============================================================================
+// 4. PROTOKOLY TRÉNOVANIA NEURÓNOVEJ SIETE
+//=============================================================================
+
+/*
+ * Postupy trénovania a optimalizácie modelu
+ */
+
+// 4.1 Rýchle prototypové trénovanie (300 vzoriek)
+./bin/mnist_train_300
+echo "Základné trénovanie modelu dokončené: models/mnist_model_300.bin"
+
+// 4.2 Stredné trénovanie (1500 vzoriek)
+./bin/mnist_train_1500  
+echo "Stredné trénovanie modelu dokončené: models/mnist_model_1500.bin"
+
+// 4.3 Produkčné trénovanie modelu (60 000 vzoriek)
+./bin/mnist_train
+echo "Produkčné trénovanie modelu dokončené: models/mnist_model.bin"
+
+// 4.4 Vylepšené trénovanie s optimalizáciou
+./bin/mnist_train_improved
+echo "Optimalizované trénovanie modelu dokončené: models/mnist_model_final.bin"
+
+// 4.5 Monitorovanie postupu trénovania
+tail -f training.log
+
+// 4.6 Validácia výkonu modelu
+./bin/mnist_test models/mnist_model.bin
+
+//=============================================================================
+// 5. POSTUPY ZOSTAVENIA A KOMPILÁCIE
+//=============================================================================
+
+/*
+ * Kompilácia systému a správa zostavenia
+ */
+
+// 5.1 Kompletné prezostavenie systému
+make clean
+make all
+echo "Kompilácia systému úspešne dokončená"
+
+// 5.2 Kompilácia jadra neurónovej siete
+gcc -std=c99 -O3 -o bin/mnist_train src/*.c -Iinclude -lm
+
+// 5.3 Kompilácia trénovacích variantov
+gcc -std=c99 -O3 -o bin/mnist_train_300 examples/mnist_train_300.c src/*.c -Iinclude -lm
+gcc -std=c99 -O3 -o bin/mnist_train_1500 examples/mnist_train_1500.c src/*.c -Iinclude -lm
+
+// 5.4 Kompilácia Node.js natívneho modulu
+cd backend/native && node-gyp configure && node-gyp build
+
+// 5.5 Verifikácia a testovanie zostavenia
+make test
+echo "Verifikácia zostavenia dokončená"
+
+//=============================================================================
+// 6. TESTOVANIE A VALIDÁCIA API
+//=============================================================================
+
+/*
+ * Postupy testovania RESTful API endpointov
+ */
+
+// 6.1 Hodnotenie zdravia systému
+curl -X GET http://samuelsivaksoc.xyz/api/health \
+  -H "Accept: application/json" \
+  --max-time 10
+
+// 6.2 Získanie informácií o modeli neurónovej siete
+curl -X GET http://samuelsivaksoc.xyz/api/model/info \
+  -H "Accept: application/json"
+
+// 6.3 Enumerácia dostupných modelov  
+curl -X GET http://samuelsivaksoc.xyz/api/model/models \
+  -H "Accept: application/json"
+
+// 6.4 Testovanie API predikcie (vzorové dáta)
+curl -X POST http://samuelsivaksoc.xyz/api/predict \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "pixels": [/* 784 normalizovaných pixelových hodnôt 0.0-1.0 */],
+    "format": "28x28"
+  }'
+
+// 6.5 Postup prepínania modelu
+curl -X POST http://samuelsivaksoc.xyz/api/model/switch \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"modelName": "mnist_model_1500.bin"}'
+
+// 6.6 Testovanie dávkovej predikcie
+curl -X POST http://samuelsivaksoc.xyz/api/predict/batch \
+  -H "Content-Type: application/json" \
+  -d '{"predictions": [/* pole polí pixelov */]}'
+
+//=============================================================================
+// 7. MONITOROVANIE A DIAGNOSTIKA SYSTÉMU
+//=============================================================================
+
+/*
+ * Monitorovanie výkonu a zdravia systému
+ */
+
+// 7.1 Analýza aplikačných logov
+tail -f backend/logs/app.log | grep -E "(ERROR|WARN|INFO)"
+
+// 7.2 Vyšetrovanie chybových logov
+tail -f backend/logs/error.log
+
+// 7.3 Monitorovanie systémových zdrojov
+htop -p $(pgrep -f "node app.js")
+free -h && df -h
+
+// 7.4 Analýza sieťových spojení
+ss -tulpn | grep -E ":3000|:8080"
+
+// 7.5 Verifikácia stavu procesov
+systemctl status nginx
+ps aux | grep -E "(node|python3)" | grep -v grep
+
+// 7.6 Analýza využitia pamäte
+cat /proc/meminfo | grep -E "(MemTotal|MemAvailable|MemFree)"
+
+// 7.7 Hodnotenie výkonu CPU
+grep "cpu " /proc/stat && uptime
+
+//=============================================================================
+// 8. KONFIGURÁCIA BEZPEČNOSTI A FIREWALLU
+//=============================================================================
+
+/*
+ * Sieťová bezpečnosť a kontrola prístupu
+ */
+
+// 8.1 Hodnotenie stavu firewallu
+sudo ufw status verbose
+
+// 8.2 Konfigurácia produkčných portov
+sudo ufw allow 80/tcp comment "HTTP"
+sudo ufw allow 443/tcp comment "HTTPS" 
+sudo ufw allow 22/tcp comment "SSH"
+
+// 8.3 Konfigurácia vývojových portov (iba lokálne)
+sudo ufw allow from 127.0.0.1 to any port 3000 comment "Backend API"
+sudo ufw allow from 127.0.0.1 to any port 8080 comment "Frontend Dev"
+
+// 8.4 Aktivácia firewallu
+sudo ufw --force enable
+
+// 8.5 Bezpečnostný audit
+sudo ss -tulpn | grep LISTEN
+sudo netstat -tulpn | grep -E ":80|:443|:3000|:8080"
+
+//=============================================================================
+// 9. ANALÝZA VÝKONU A OPTIMALIZÁCIA
+//=============================================================================
+
+/*
+ * Testovanie výkonu systému a optimalizácia
+ */
+
+// 9.1 Záťažové testovanie API (vyžaduje apache2-utils)
+ab -n 1000 -c 50 -H "Accept: application/json" \
+  http://samuelsivaksoc.xyz/api/health
+
+// 9.2 Testovanie výkonu predikčného endpointu
+ab -n 100 -c 10 -p prediction_test.json \
+  -T "application/json" \
+  http://samuelsivaksoc.xyz/api/predict
+
+// 9.3 Analýza času odozvy
+for i in {1..10}; do
+  time curl -s http://samuelsivaksoc.xyz/api/health > /dev/null
+done
+
+// 9.4 Výkon trénovania neurónovej siete
+time ./bin/mnist_train_300
+time ./bin/mnist_train_1500
+
+// 9.5 Profilovanie pamäte počas trénovania
+valgrind --tool=memcheck --leak-check=full ./bin/mnist_train_300
+
+//=============================================================================
+// 10. ÚDRŽBA A RIEŠENIE PROBLÉMOV
+//=============================================================================
+
+/*
+ * Údržba systému a riešenie problémov
+ */
+
+// 10.1 Rotácia logov a čistenie
+sudo logrotate -f /etc/logrotate.d/marknet
+rm -f backend/logs/*.log.old
+
+// 10.2 Aktualizácie závislostí
+cd backend && npm audit && npm update
+
+// 10.3 Postupy zálohovania modelu
+mkdir -p backups/models_$(date +%Y%m%d)
+cp models/*.bin backups/models_$(date +%Y%m%d)/
+
+// 10.4 Zálohovanie stavu systému
+tar -czf system_backup_$(date +%Y%m%d_%H%M%S).tar.gz \
+  --exclude=node_modules --exclude=*.log \
+  backend/ frontend/ models/ src/ include/
+
+// 10.5 Čistenie databázy (ak je použiteľné)
+# Momentálne nie je implementovaná žiadna databáza
+
+// 10.6 Invalidácia cache
+# Backend automaticky spravuje invalidáciu cache
+
+//=============================================================================
+// 11. POSTUPY NASADENIA DO PRODUKCIE
+//=============================================================================
+
+/*
+ * Protokol nasadenia do produkčného prostredia
+ */
+
+// 11.1 Verifikácia systému pred nasadením
+make test && npm test && echo "Testy pred nasadením prešli"
+
+// 11.2 Premenné produkčného prostredia
+export NODE_ENV=production
+export PORT=3000
+export LOG_LEVEL=info
+
+// 11.3 Inštalácia SSL certifikátu (Let's Encrypt)
+sudo certbot --nginx -d samuelsivaksoc.xyz
+
+// 11.4 Produkčná konfigurácia Nginx
+sudo cp deployment/nginx/sites-available/samuelsivaksoc /etc/nginx/sites-available/
+sudo ln -sf /etc/nginx/sites-available/samuelsivaksoc /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+
+// 11.5 Inštalácia Systemd služby
+sudo cp deployment/systemd/*.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable marknet-backend marknet-frontend
+
+// 11.6 Spustenie produkčných služieb
+sudo systemctl start marknet-backend
+sudo systemctl start marknet-frontend
+sudo systemctl status marknet-backend marknet-frontend
+
+//=============================================================================
+// 12. NÚDZOVÉ PROTOKOLY OBNOVY
+//=============================================================================
+
+/*
+ * Postupy obnovy kritického systému
+ */
+
+// 12.1 Obnova služby
+sudo systemctl restart nginx
+sudo systemctl restart marknet-backend
+sudo systemctl restart marknet-frontend
+
+// 12.2 Vynútené ukončenie procesov
+sudo pkill -9 -f "node app.js"
+sudo pkill -9 -f "python3.*8080"
+
+// 12.3 Riešenie konfliktov portov
+sudo lsof -ti:3000 | xargs sudo kill -9
+sudo lsof -ti:8080 | xargs sudo kill -9
+
+// 12.4 Obnova modelu zo zálohy
+cp backups/models_latest/*.bin models/
+
+// 12.5 Kompletný reset systému
+make clean
+git reset --hard HEAD
+rm -rf backend/node_modules
+cd backend && npm install --production
+
+// 12.6 Núdzové vypnutie
+sudo shutdown -h now
+
+//=============================================================================
+// PRÍKAZY VERIFIKÁCIE STAVU SYSTÉMU
+//=============================================================================
+
+/*
+ * Komplexná kontrola stavu systému
+ */
+
+echo "=== Správa o stave MarkNET systému ==="
+echo "Časová značka: $(date)"
+echo "Hostname: $(hostname)"
+echo "Uptime: $(uptime -p)"
+echo ""
+
+echo "=== Stav služieb ==="
+systemctl is-active nginx && echo "✓ Nginx: Aktívny" || echo "✗ Nginx: Neaktívny"
+pgrep -f "node app.js" > /dev/null && echo "✓ Backend: Beží" || echo "✗ Backend: Zastavený"
+pgrep -f "python3.*8080" > /dev/null && echo "✓ Frontend: Beží" || echo "✗ Frontend: Zastavený"
+
+echo ""
+echo "=== Modely neurónovej siete ==="
+ls -la models/*.bin 2>/dev/null | wc -l | xargs echo "Dostupné modely:"
+
+echo ""
+echo "=== Sieťová konektivita ==="
+curl -s --max-time 5 http://samuelsivaksoc.xyz/api/health > /dev/null && \
+  echo "✓ Externé API: Prístupné" || echo "✗ Externé API: Nedostupné"
+
+echo ""
+echo "=== Systémové zdroje ==="
+free -h | grep Mem | awk '{print "Pamäť: " $3 "/" $2 " (" $3/$2*100 "% použité)"}'
+df -h / | tail -1 | awk '{print "Disk: " $3 "/" $2 " (" $5 " použité)"}'
+
+echo "=== Koniec správy ==="
+
+//=============================================================================
+// URL NASADENIA A ENDPOINTY
+//=============================================================================
+
+/*
+ * Prístupové body produkčného systému:
+ * 
+ * Primárna doména: http://samuelsivaksoc.xyz
+ * Frontend aplikácia: http://samuelsivaksoc.xyz/
+ * Základná URL API: http://samuelsivaksoc.xyz/api/
+ * 
+ * API Endpointy:
+ * GET    /api/health              - Stav zdravia systému
+ * GET    /api/model/info          - Informácie o neurónovej sieti  
+ * GET    /api/model/models        - Enumerácia dostupných modelov
+ * POST   /api/predict             - Predikcia rozpoznávania číslic
+ * POST   /api/model/switch        - Dynamické prepínanie modelu
+ * POST   /api/predict/batch       - Spracovanie dávkovej predikcie
+ * 
+ * Administrátorské rozhrania:
+ * Stav servera: http://samuelsivaksoc.xyz/api/health
+ * Správa modelu: http://samuelsivaksoc.xyz/api/model/models
+ */
+
+/*
+ * ══════════════════════════════════════════════════════════════════════════════
+ * KONIEC PREVÁDZKOVÉHO MANUÁLU
+ * 
+ * Pre technickú podporu alebo systémové problémy:
+ * - Preskúmajte aplikačné logy: backend/logs/app.log
+ * - Skontrolujte stav systému: systemctl status marknet-*
+ * - Overte sieťovú konektivitu: curl http://samuelsivaksoc.xyz/api/health
+ * - Monitorujte využitie zdrojov: htop, free -h, df -h
+ * 
+ * Tento manuál pokrýva štandardné operácie pre MarkNET systém neurónovej siete.
+ * Všetky príkazy sa majú vykonávať z koreňového adresára projektu, pokiaľ nie je
+ * uvedené inak.
+ * ══════════════════════════════════════════════════════════════════════════════
+ */ 

@@ -1,15 +1,14 @@
 {
-  "name": "neural-network-backend",
+  "name": "neural-network-native",
   "version": "1.0.0",
-  "description": "Backend for Neural Network Handwriting Recognition",
-  "main": "app.js",
+  "description": "Native bindings for neural network",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "install": "cd native && node-gyp rebuild"
+    "install": "node-gyp rebuild",
+    "build": "node-gyp rebuild"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "node-addon-api": "^7.0.0"
   },
   "devDependencies": {
     "node-gyp": "^10.0.1"

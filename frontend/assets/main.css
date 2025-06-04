@@ -1,0 +1,558 @@
+/* MarkNET - Neural Numbers Interface */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-bg: #0a0a0a;
+    --secondary-bg: #1a1a1a;
+    --accent-bg: #2a2a2a;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-muted: #888888;
+    --accent-color: #00ff88;
+    --accent-hover: #00cc6a;
+    --border-color: #333333;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-accent: linear-gradient(135deg, #00ff88 0%, #00aa55 100%);
+    --shadow-main: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-light: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Header Navigation */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 2rem;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+}
+
+/* Language Switcher */
+.language-switcher {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.lang-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.lang-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+.lang-btn.active {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    border-color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* Main Content */
+.main-content {
+    margin-top: 70px;
+    padding: 2rem;
+}
+
+/* Neural Numbers Section */
+.neural-numbers {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 0;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+}
+
+.section-description {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    line-height: 1.8;
+}
+
+/* Interactive Area */
+.interactive-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 3rem;
+    align-items: start;
+}
+
+/* Canvas Section */
+.canvas-section {
+    text-align: center;
+}
+
+.canvas-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.canvas-instructions {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
+.canvas-container {
+    background: var(--secondary-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-main);
+    transition: all 0.3s ease;
+}
+
+.canvas-container:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 8px 32px rgba(0, 255, 136, 0.1);
+}
+
+#drawingCanvas {
+    background: white;
+    border-radius: 8px;
+    cursor: crosshair;
+    display: block;
+    margin: 0 auto;
+    box-shadow: var(--shadow-light);
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-clear {
+    background: var(--accent-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-clear:hover {
+    background: var(--border-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-light);
+}
+
+.btn-predict {
+    background: var(--gradient-accent);
+    color: var(--primary-bg);
+    font-weight: 700;
+}
+
+.btn-predict:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+}
+
+.btn-predict:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Model Selector */
+.model-selector {
+    text-align: center;
+}
+
+.model-selector label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+#modelSelect {
+    background: var(--secondary-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 250px;
+}
+
+#modelSelect:hover {
+    border-color: var(--accent-color);
+}
+
+#modelSelect:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+}
+
+/* Results Section */
+.results-section {
+    text-align: center;
+}
+
+.results-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+}
+
+/* Confidence Grid */
+.confidence-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.confidence-bar {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.confidence-bar:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-light);
+}
+
+.confidence-bar.winner {
+    border-color: var(--accent-color);
+    background: rgba(0, 255, 136, 0.1);
+}
+
+.confidence-bar.pulse {
+    animation: pulse 1.5s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.digit-label {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.confidence-percentage {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.progress-bar {
+    height: 60px;
+    background: var(--accent-bg);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-accent);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 4px;
+}
+
+/* Status Display */
+.status-display {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.prediction-result {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+}
+
+.prediction-confidence {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Experiments Section */
+.experiments-section {
+    max-width: 1200px;
+    margin: 4rem auto 0;
+    padding: 3rem 0;
+    text-align: center;
+}
+
+.experiments-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.experiments-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    line-height: 1.7;
+}
+
+.experiment-examples {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.experiment-card {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: left;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.experiment-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-accent);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.experiment-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-main);
+    border-color: var(--accent-color);
+}
+
+.experiment-card:hover::before {
+    transform: scaleX(1);
+}
+
+.experiment-card h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.experiment-card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header {
+        padding: 0 1rem;
+    }
+    
+    .nav {
+        height: 60px;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    .main-content {
+        margin-top: 60px;
+        padding: 1rem;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+    }
+    
+    .section-description {
+        font-size: 1rem;
+    }
+    
+    .interactive-area {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .confidence-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .confidence-bar {
+        padding: 0.75rem;
+    }
+    
+    .progress-bar {
+        height: 40px;
+    }
+    
+    .experiment-examples {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .controls {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .canvas-container {
+        padding: 1rem;
+    }
+    
+    #drawingCanvas {
+        width: 240px;
+        height: 240px;
+    }
+    
+    .confidence-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .confidence-bar {
+        padding: 0.5rem;
+    }
+    
+    .digit-label {
+        font-size: 1rem;
+    }
+    
+    .confidence-percentage {
+        font-size: 0.8rem;
+    }
+    
+    .progress-bar {
+        height: 30px;
+    }
+}

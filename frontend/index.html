@@ -3,191 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Handwriting Recognition</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        canvas {
-            border: 2px solid #333;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .clear {
-            background-color: #ff4444;
-            color: white;
-        }
-
-        .predict {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .result {
-            font-size: 24px;
-            margin-top: 20px;
-            text-align: center;
-        }
-    </style>
+    <title data-en="MarkNET - Neural Numbers" data-sk="MarkNET - Neurálne čísla">MarkNET - Neural Numbers</title>
+    <link rel="stylesheet" href="assets/main.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Handwriting Recognition</h1>
-        <canvas id="drawingCanvas" width="280" height="280"></canvas>
-        <div class="controls">
-            <button class="clear" onclick="clearCanvas()">Clear</button>
-            <button class="predict" onclick="predict()">Predict</button>
-        </div>
-        <div class="result" id="result">Draw a digit (0-9)</div>
-    </div>
-    <script>
-        const canvas = document.getElementById('drawingCanvas');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
+    <!-- Header Navigation -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">MarkNET</div>
+            <div class="language-switcher">
+                <button class="lang-btn active" data-lang="en">EN</button>
+                <button class="lang-btn" data-lang="sk">SK</button>
+            </div>
+        </nav>
+    </header>
 
-        // Set up canvas
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 15;
-        ctx.lineCap = 'round';
-        
-        // Set white background
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    <main class="main-content">
+        <!-- Neural Numbers Section -->
+        <section id="neural-numbers" class="neural-numbers">
+            <h1 class="section-title" data-en="Neural Numbers" data-sk="Neurálne čísla">Neural Numbers</h1>
+            <p class="section-description" data-en="Experience advanced machine learning technology through our sophisticated neural network system. This artificial intelligence platform utilizes deep learning algorithms to accurately recognize handwritten digits from 0-9 with exceptional precision and real-time analysis capabilities." data-sk="Zažite pokročilú technológiu strojového učenia prostredníctvom nášho sofistikovaného neurálneho sieťového systému. Táto platforma umelej inteligencie využíva algoritmy hlbokého učenia na presné rozpoznávanie ručne písaných číslic od 0-9 s výnimočnou presnosťou a možnosťami analýzy v reálnom čase.">
+                Experience advanced machine learning technology through our sophisticated neural network system. 
+                This artificial intelligence platform utilizes deep learning algorithms to accurately recognize 
+                handwritten digits from 0-9 with exceptional precision and real-time analysis capabilities.
+            </p>
 
-        // Drawing event listeners
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseout', stopDrawing);
+            <div class="interactive-area">
+                <!-- Canvas Section -->
+                <div class="canvas-section">
+                    <h3 class="canvas-title" data-en="Draw Your Digit" data-sk="Nakreslite vašu číslicu">Draw Your Digit</h3>
+                    <div class="canvas-instructions" data-en="Draw number 0-9" data-sk="Nakreslite číslo 0-9">Draw number 0-9</div>
+                    <div class="canvas-container">
+                        <canvas id="drawingCanvas" width="280" height="280"></canvas>
+                    </div>
+                    <div class="controls">
+                        <button class="btn btn-clear" onclick="clearCanvas()" data-en="Clear" data-sk="Vymazať">Clear</button>
+                        <button class="btn btn-predict" onclick="predict()" data-en="Analyze" data-sk="Analyzovať">Analyze</button>
+                    </div>
+                    <div class="model-selector">
+                        <label for="modelSelect" data-en="Training Level:" data-sk="Úroveň trénovania:">Training Level:</label>
+                        <select id="modelSelect">
+                            <option value="" data-en="Loading models..." data-sk="Načítavajú sa modely...">Loading models...</option>
+                        </select>
+                    </div>
+                </div>
 
-        function startDrawing(e) {
-            isDrawing = true;
-            [lastX, lastY] = [e.offsetX, e.offsetY];
-        }
+                <!-- Results Section -->
+                <div class="results-section">
+                    <h3 class="results-title" data-en="Recognition Results" data-sk="Výsledky rozpoznávania">Recognition Results</h3>
+                    
+                    <!-- Confidence Bars Grid -->
+                    <div class="confidence-grid">
+                        <div class="confidence-bar" data-digit="0">
+                            <div class="digit-label">0</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar" data-digit="1">
+                            <div class="digit-label">1</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar" data-digit="2">
+                            <div class="digit-label">2</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar" data-digit="3">
+                            <div class="digit-label">3</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar" data-digit="4">
+                            <div class="digit-label">4</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar" data-digit="5">
+                            <div class="digit-label">5</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar" data-digit="6">
+                            <div class="digit-label">6</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar" data-digit="7">
+                            <div class="digit-label">7</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar" data-digit="8">
+                            <div class="digit-label">8</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                        <div class="confidence-bar" data-digit="9">
+                            <div class="digit-label">9</div>
+                            <div class="confidence-percentage">0%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
 
-        function draw(e) {
-            if (!isDrawing) return;
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
-            [lastX, lastY] = [e.offsetX, e.offsetY];
-        }
+                    <!-- Status Display -->
+                    <div class="status-display">
+                        <div class="prediction-result" id="predictionResult" data-en="Draw a digit to begin" data-sk="Nakreslite číslicu pre začatie analýzy">Draw a digit to begin</div>
+                        <div class="prediction-confidence" id="predictionConfidence"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        function stopDrawing() {
-            isDrawing = false;
-        }
-
-        function clearCanvas() {
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('result').textContent = 'Draw a digit (0-9)';
-        }
-
-        function resizeImageData(imageData, width, height) {
-            // Create a temporary canvas to resize the image
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = width;
-            tempCanvas.height = height;
-            const tempCtx = tempCanvas.getContext('2d');
-
-            // Draw the original image data onto the temporary canvas
-            const originalCanvas = document.createElement('canvas');
-            originalCanvas.width = imageData.width;
-            originalCanvas.height = imageData.height;
-            const originalCtx = originalCanvas.getContext('2d');
-            originalCtx.putImageData(imageData, 0, 0);
-
-            // Use built-in canvas scaling to resize
-            tempCtx.drawImage(originalCanvas, 0, 0, width, height);
-
-            // Get the resized image data
-            return tempCtx.getImageData(0, 0, width, height);
-        }
-
-        async function predict() {
-            // Get image data from the drawing canvas (280x280)
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        <!-- Further Experiments Section -->
+        <section id="experiments" class="experiments-section">
+            <h2 class="experiments-title" data-en="Further Experiments" data-sk="Pokročilé experimenty">Further Experiments</h2>
+            <p class="experiments-description" data-en="Explore the advanced capabilities of our neural recognition system. Test the boundaries of artificial intelligence by experimenting with various drawing patterns, styles, and creative interpretations to analyze the network's response mechanisms." data-sk="Preskúmajte pokročilé možnosti nášho neurálneho rozpoznávacieho systému. Testujte hranice umelej inteligencie experimentovaním s rôznymi vzormi kreslenia, štýlmi a kreatívnymi interpretáciami na analýzu reakcných mechanizmov siete.">
+                Explore the advanced capabilities of our neural recognition system. Test the boundaries of 
+                artificial intelligence by experimenting with various drawing patterns, styles, and creative 
+                interpretations to analyze the network's response mechanisms.
+            </p>
             
-            // Resize to 28x28
-            const resizedData = resizeImageData(imageData, 28, 28);
-            const data = resizedData.data;
-            
-            // Convert to grayscale array (0-1)
-            const pixels = [];
-            for (let i = 0; i < data.length; i += 4) {
-                // Convert RGBA to grayscale using luminance formula
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                // Calculate grayscale and invert (1 - value) since MNIST uses white digits on black background
-                const gray = 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                pixels.push(gray);
-            }
+            <div class="experiment-examples">
+                <div class="experiment-card">
+                    <h4 data-en="Style Variations" data-sk="Štýlové variácie">Style Variations</h4>
+                    <p data-en="Experiment with different writing styles including cursive, block letters, and unconventional fonts to test adaptability" data-sk="Experimentujte s rôznymi štýlmi písania vrátane kurzívy, tlačených písmen a nekonvenčných fontov na testovanie adaptability">Experiment with different writing styles including cursive, block letters, and unconventional fonts to test adaptability</p>
+                </div>
+                <div class="experiment-card">
+                    <h4 data-en="Scale Testing" data-sk="Testovanie mierky">Scale Testing</h4>
+                    <p data-en="Test recognition accuracy with varying digit sizes from minimal corner drawings to full canvas utilization" data-sk="Testujte presnosť rozpoznávania s rôznymi veľkosťami číslic od minimálnych rohových kresieb po plné využitie plátna">Test recognition accuracy with varying digit sizes from minimal corner drawings to full canvas utilization</p>
+                </div>
+                <div class="experiment-card">
+                    <h4 data-en="Pattern Recognition" data-sk="Rozpoznávanie vzorov">Pattern Recognition</h4>
+                    <p data-en="Analyze network responses to geometric shapes such as crosses, multiplication signs, and parallel line configurations" data-sk="Analyzujte reakcie siete na geometrické tvary ako sú kríže, znaky násobenia a konfigurácie rovnobežných čiar">Analyze network responses to geometric shapes such as crosses, multiplication signs, and parallel line configurations</p>
+                </div>
+                <div class="experiment-card">
+                    <h4 data-en="Creative Interpretation" data-sk="Kreatívna interpretácia">Creative Interpretation</h4>
+                    <p data-en="Explore artistic representations using dots, dashes, and abstract interpretations of numerical concepts" data-sk="Preskúmajte umelecké reprezentácie používaním bodiek, čiarok a abstraktných interpretácií numerických konceptov">Explore artistic representations using dots, dashes, and abstract interpretations of numerical concepts</p>
+                </div>
+            </div>
+        </section>
+    </main>
 
-            console.log('Sending pixels:', pixels.length, 'values');
-            console.log('Sample values:', pixels.slice(0, 10));
-
-            try {
-                const response = await fetch('http://localhost:3000/predict', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ pixels }),
-                });
-
-                const result = await response.json();
-                console.log('Received result:', result);
-                
-                if (result.error) {
-                    document.getElementById('result').textContent = `Error: ${result.error}`;
-                } else if (result.prediction !== undefined) {
-                    document.getElementById('result').textContent = `Predicted digit: ${result.prediction}`;
-                } else {
-                    document.getElementById('result').textContent = 'Error: Invalid response from server';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('result').textContent = 'Error: Could not get prediction';
-            }
-        }
-    </script>
+    <script src="js/main.js"></script>
 </body>
 </html>
