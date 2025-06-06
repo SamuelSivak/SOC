@@ -313,8 +313,8 @@ class NeuralNumbers{
 
             const result = await response.json();
             this.currentModel = modelFilename;
-            
-            const successText = this.currentLanguage === 'sk' ? 
+                
+                const successText = this.currentLanguage === 'sk' ? 
                 `Model prepnutý na: ${modelFilename}` : 
                 `Model switched to: ${modelFilename}`;
             this.updateStatus(successText);
@@ -347,13 +347,13 @@ class NeuralNumbers{
         for(let i = 0; i < 10; i++){
             const bar = document.querySelector(`[data-digit="${i}"]`);
             if(bar){
-                const percentage = bar.querySelector('.confidence-percentage');
+            const percentage = bar.querySelector('.confidence-percentage');
                 const progressFill = bar.querySelector('.progress-fill');
-                
-                percentage.textContent = '0%';
+            
+            percentage.textContent = '0%';
                 progressFill.style.width = '0%';
                 progressFill.style.backgroundColor = '#e0e0e0';
-                bar.classList.remove('winner');
+            bar.classList.remove('winner');
             }
         }
     }
@@ -381,19 +381,19 @@ class NeuralNumbers{
      */
     draw(e){
         if(!this.isDrawing) return;
-
+        
         const rect = this.canvas.getBoundingClientRect();
         const currentX = e.clientX - rect.left;
         const currentY = e.clientY - rect.top;
-
+        
         this.ctx.beginPath();
         this.ctx.moveTo(this.lastX, this.lastY);
         this.ctx.lineTo(currentX, currentY);
         this.ctx.stroke();
-
+        
         this.lastX = currentX;
         this.lastY = currentY;
-
+        
         // Naplánovanie real-time predikcie
         if(this.realTimePrediction){
             this.scheduleRealTimePrediction();
@@ -526,10 +526,10 @@ class NeuralNumbers{
             });
 
             if(!hasContent){
-                const emptyText = this.currentLanguage === 'sk' ? 
+                    const emptyText = this.currentLanguage === 'sk' ? 
                     'Nakreslite číslicu pre začatie analýzy' : 
                     'Draw a digit to begin';
-                this.updateStatus(emptyText);
+                    this.updateStatus(emptyText);
                 this.initializeConfidenceBars();
                 return;
             }
@@ -550,7 +550,7 @@ class NeuralNumbers{
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
+                body: JSON.stringify({ 
                     pixels: pixels,
                     options: {
                         normalize: true,
@@ -569,7 +569,7 @@ class NeuralNumbers{
 
         } catch(error){
             console.error('Chyba pri predikcii:', error);
-            const errorText = this.currentLanguage === 'sk' ? 
+                const errorText = this.currentLanguage === 'sk' ? 
                 'Chyba pri rozpoznávaní' : 
                 'Recognition error';
             this.updateStatus(errorText, error.message);
@@ -645,7 +645,7 @@ class NeuralNumbers{
             let color = '#e0e0e0'; // Predvolená šedá
             if(digit === winnerDigit){
                 color = prob > 0.8 ? '#2ecc71' : prob > 0.5 ? '#f39c12' : '#e74c3c';
-                bar.classList.add('winner');
+                    bar.classList.add('winner');
             } else{
                 bar.classList.remove('winner');
                 if(prob > 0.1) color = '#3498db'; // Modrá pre významné pravdepodobnosti
