@@ -105,7 +105,7 @@ Systém sa skladá z troch hlavných komponentov:
 | `logger.js` | Logovanie aplikácie |
 | `imageProcessor.js` | Spracovanie obrázkov |
 
-#### C++ Wrapper
+#### C Wrapper
 
 | Súbor | Popis |
 |-------|-------|
