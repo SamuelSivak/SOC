@@ -1,16 +1,121 @@
 {
-  "name": "neural-network-native",
+  "_comment_header": [
+    "═══════════════════════════════════════════════════════════════════════════════",
+    "MARKNET - BACKEND NODE.JS PACKAGE KONFIGURÁCIA",
+    "═══════════════════════════════════════════════════════════════════════════════",
+    "",
+    "NPM package.json pre MarkNET backend server s Express.js API",
+    "a natívnym C modulom pre MNIST digit recognition neurónovú sieť.",
+    "",
+    "Komponenty:",
+    "- Express.js REST API server",
+    "- Native C neural network modul",
+    "- Winston logging system",
+    "- Image preprocessing pipeline",
+    "- Model management API",
+    "",
+    "Autor: Samuel Sivák",
+    "Verzia: 1.0.0",
+    "═══════════════════════════════════════════════════════════════════════════════"
+  ],
+
+  "_comment_basic_info": "Základné informácie o package",
+  "name": "marknet-neural-network-backend",
   "version": "1.0.0",
-  "description": "Native bindings for neural network",
-  "main": "index.js",
-  "scripts": {
-    "install": "node-gyp rebuild",
-    "build": "node-gyp rebuild"
+  "description": "MarkNET backend server with Express.js API and native C neural network for MNIST handwritten digit recognition",
+  "author": "Samuel Sivák",
+  "license": "MIT",
+  "main": "app.js",
+  
+  "_comment_keywords": "Kľúčové slová pre NPM search",
+  "keywords": [
+    "neural-network",
+    "mnist",
+    "digit-recognition",
+    "machine-learning",
+    "express",
+    "native-addon",
+    "c-bindings",
+    "api",
+    "marknet"
+  ],
+
+  "_comment_repository": "Git repository informácie",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samuelsivak/marknet"
   },
+
+  "_comment_scripts": "NPM scripty pre build, development a deployment",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "build": "node-gyp rebuild",
+    "install": "node-gyp rebuild",
+    "test": "echo \"Tests not implemented yet\" && exit 1",
+    "clean": "node-gyp clean",
+    "rebuild": "npm run clean && npm run build"
+  },
+
+  "_comment_engines": "Supported Node.js verzie",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+
+  "_comment_dependencies": "Production závislosti",
   "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^7.1.5",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1",
     "node-addon-api": "^7.0.0"
   },
+
+  "_comment_dev_dependencies": "Development závislosti",
   "devDependencies": {
-    "node-gyp": "^10.0.1"
-  }
+    "node-gyp": "^10.0.1",
+    "nodemon": "^3.0.2"
+  },
+
+  "_comment_gypfile": "Native modul build konfigurácia",
+  "gypfile": true,
+
+  "_comment_directories": "Štruktúra adresárov",
+  "directories": {
+    "lib": "./",
+    "bin": "./",
+    "doc": "../docs"
+  },
+
+  "_comment_files": "Súbory zahrnuté v NPM package",
+  "files": [
+    "*.js",
+    "*.c",
+    "*.h",
+    "binding.gyp",
+    "build/",
+    "logs/"
+  ],
+
+  "_comment_config": "Konfiguračné nastavenia",
+  "config": {
+    "port": "3000",
+    "host": "0.0.0.0",
+    "log_level": "info"
+  },
+
+  "_comment_os": "Podporované operačné systémy",
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+
+  "_comment_cpu": "Podporované CPU architektúry",
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
 } 

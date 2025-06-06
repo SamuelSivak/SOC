@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="assets/main.css">
 </head>
 <body>
-    <!-- Header Navigation -->
+    <!-- Hlavičková navigácia -->
     <header class="header">
         <nav class="nav">
             <div class="logo">MarkNET</div>
@@ -19,17 +19,15 @@
     </header>
 
     <main class="main-content">
-        <!-- Neural Numbers Section -->
+        <!-- Hlavná sekcia aplikácie -->
         <section id="neural-numbers" class="neural-numbers">
-            <h1 class="section-title" data-en="Neural Numbers" data-sk="Neurálne čísla">Neural Numbers</h1>
-            <p class="section-description" data-en="Experience advanced machine learning technology through our sophisticated neural network system. This artificial intelligence platform utilizes deep learning algorithms to accurately recognize handwritten digits from 0-9 with exceptional precision and real-time analysis capabilities." data-sk="Zažite pokročilú technológiu strojového učenia prostredníctvom nášho sofistikovaného neurálneho sieťového systému. Táto platforma umelej inteligencie využíva algoritmy hlbokého učenia na presné rozpoznávanie ručne písaných číslic od 0-9 s výnimočnou presnosťou a možnosťami analýzy v reálnom čase.">
-                Experience advanced machine learning technology through our sophisticated neural network system. 
-                This artificial intelligence platform utilizes deep learning algorithms to accurately recognize 
-                handwritten digits from 0-9 with exceptional precision and real-time analysis capabilities.
+            <h1 class="section-title" data-en="MarkNET - NUMBERS" data-sk="MarkNET - ČÍSLA">MarkNET - NUMBERS</h1>
+            <p class="section-description" data-en="MarkNET is a neural network implementation for handwritten digit recognition, developed using C programming language with a Node.js backend API. This project demonstrates multi-layer perceptron architecture with ReLU activation functions, trained on the MNIST dataset to classify digits 0-9 with high accuracy." data-sk="MarkNET je implementácia neurónovej siete pre rozpoznávanie ručne písaných číslic, vyvinutá v programovacom jazyku C s Node.js backend API. Tento projekt demonštruje architektúru multi-layer perceptron s ReLU aktivačnými funkciami, trénovanú na MNIST datasete na klasifikáciu číslic 0-9 s vysokou presnosťou.">
+                MarkNET is a neural network implementation for handwritten digit recognition, developed using C programming language with a Node.js backend API. This project demonstrates multi-layer perceptron architecture with ReLU activation functions, trained on the MNIST dataset to classify digits 0-9 with high accuracy.
             </p>
 
             <div class="interactive-area">
-                <!-- Canvas Section -->
+                <!-- Kresliacé plátno -->
                 <div class="canvas-section">
                     <h3 class="canvas-title" data-en="Draw Your Digit" data-sk="Nakreslite vašu číslicu">Draw Your Digit</h3>
                     <div class="canvas-instructions" data-en="Draw number 0-9" data-sk="Nakreslite číslo 0-9">Draw number 0-9</div>
@@ -48,11 +46,11 @@
                     </div>
                 </div>
 
-                <!-- Results Section -->
+                <!-- Výsledky rozpoznávania -->
                 <div class="results-section">
                     <h3 class="results-title" data-en="Recognition Results" data-sk="Výsledky rozpoznávania">Recognition Results</h3>
                     
-                    <!-- Confidence Bars Grid -->
+                    <!-- Mriežka pravdepodobností -->
                     <div class="confidence-grid">
                         <div class="confidence-bar" data-digit="0">
                             <div class="digit-label">0</div>
@@ -126,40 +124,11 @@
                         </div>
                     </div>
 
-                    <!-- Status Display -->
+                    <!-- Zobrazenie stavu -->
                     <div class="status-display">
                         <div class="prediction-result" id="predictionResult" data-en="Draw a digit to begin" data-sk="Nakreslite číslicu pre začatie analýzy">Draw a digit to begin</div>
                         <div class="prediction-confidence" id="predictionConfidence"></div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Further Experiments Section -->
-        <section id="experiments" class="experiments-section">
-            <h2 class="experiments-title" data-en="Further Experiments" data-sk="Pokročilé experimenty">Further Experiments</h2>
-            <p class="experiments-description" data-en="Explore the advanced capabilities of our neural recognition system. Test the boundaries of artificial intelligence by experimenting with various drawing patterns, styles, and creative interpretations to analyze the network's response mechanisms." data-sk="Preskúmajte pokročilé možnosti nášho neurálneho rozpoznávacieho systému. Testujte hranice umelej inteligencie experimentovaním s rôznymi vzormi kreslenia, štýlmi a kreatívnymi interpretáciami na analýzu reakcných mechanizmov siete.">
-                Explore the advanced capabilities of our neural recognition system. Test the boundaries of 
-                artificial intelligence by experimenting with various drawing patterns, styles, and creative 
-                interpretations to analyze the network's response mechanisms.
-            </p>
-            
-            <div class="experiment-examples">
-                <div class="experiment-card">
-                    <h4 data-en="Style Variations" data-sk="Štýlové variácie">Style Variations</h4>
-                    <p data-en="Experiment with different writing styles including cursive, block letters, and unconventional fonts to test adaptability" data-sk="Experimentujte s rôznymi štýlmi písania vrátane kurzívy, tlačených písmen a nekonvenčných fontov na testovanie adaptability">Experiment with different writing styles including cursive, block letters, and unconventional fonts to test adaptability</p>
-                </div>
-                <div class="experiment-card">
-                    <h4 data-en="Scale Testing" data-sk="Testovanie mierky">Scale Testing</h4>
-                    <p data-en="Test recognition accuracy with varying digit sizes from minimal corner drawings to full canvas utilization" data-sk="Testujte presnosť rozpoznávania s rôznymi veľkosťami číslic od minimálnych rohových kresieb po plné využitie plátna">Test recognition accuracy with varying digit sizes from minimal corner drawings to full canvas utilization</p>
-                </div>
-                <div class="experiment-card">
-                    <h4 data-en="Pattern Recognition" data-sk="Rozpoznávanie vzorov">Pattern Recognition</h4>
-                    <p data-en="Analyze network responses to geometric shapes such as crosses, multiplication signs, and parallel line configurations" data-sk="Analyzujte reakcie siete na geometrické tvary ako sú kríže, znaky násobenia a konfigurácie rovnobežných čiar">Analyze network responses to geometric shapes such as crosses, multiplication signs, and parallel line configurations</p>
-                </div>
-                <div class="experiment-card">
-                    <h4 data-en="Creative Interpretation" data-sk="Kreatívna interpretácia">Creative Interpretation</h4>
-                    <p data-en="Explore artistic representations using dots, dashes, and abstract interpretations of numerical concepts" data-sk="Preskúmajte umelecké reprezentácie používaním bodiek, čiarok a abstraktných interpretácií numerických konceptov">Explore artistic representations using dots, dashes, and abstract interpretations of numerical concepts</p>
                 </div>
             </div>
         </section>

@@ -1,35 +1,155 @@
-# Build artifacts
-obj/
-*.o
-bin/
+#===============================================================================
+# MARKNET - GIT IGNORE KONFIGURÁCIA
+#===============================================================================
+#
+# Git ignore súbor pre MarkNET neurónovu sieť projekt.
+# Definuje súbory a adresáre ktoré sa majú ignorovať pri version control.
+#
+# Kategórie:
+# - Build artefakty a kompilované súbory
+# - Node.js závislosti a npm súbory
+# - Log súbory a debugging výstupy
+# - OS-špecifické systémové súbory
+# - IDE konfiguračné súbory
+# - Deployment archívy
+# - Runtime a process súbory
+#
+# Autor: Samuel Sivák
+# Verzia: 1.0.0
+#===============================================================================
 
-# Node.js dependencies
-node_modules/
-npm-debug.log*
-package-lock.json
+#==============================================================================
+# BUILD ARTEFAKTY A KOMPILOVANÉ SÚBORY
+#==============================================================================
 
-# Logs
-*.log
-logs/
+# C/C++ objektové súbory a binárky
+obj/                    # Objektové súbory z C kompilácie
+*.o                     # Individuálne objektové súbory
+bin/                    # Spustiteľné binárne súbory
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Node.js natívne moduly
+build/                  # node-gyp build výstup
+*.node                  # Kompilované natívne moduly
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
+#==============================================================================
+# NODE.JS ZÁVISLOSTI A NPM SÚBORY
+#==============================================================================
 
-# Deployment archives
-*.tar.gz
-*.zip
+# NPM package management
+node_modules/           # Nainštalované NPM balíčky
+npm-debug.log*          # NPM debug logy
+.npm/                   # NPM cache adresár
+package-lock.json       # NPM lock súbor (generovaný automaticky)
 
-# Runtime files
-*.pid 
+# Yarn package manager (ak sa používa)
+yarn.lock
+yarn-error.log
+
+#==============================================================================
+# LOG SÚBORY A DEBUGGING VÝSTUPY
+#==============================================================================
+
+# Winston a aplikačné logy
+*.log                   # Všetky log súbory
+logs/                   # Log adresár
+*.log.*                 # Rotované log súbory
+
+# Debug a profiling súbory
+*.debug
+*.prof
+*.trace
+
+#==============================================================================
+# OS-ŠPECIFICKÉ SYSTÉMOVÉ SÚBORY
+#==============================================================================
+
+# macOS systémové súbory
+.DS_Store               # macOS adresárové metadáta
+.DS_Store?              # Variant DS_Store súboru
+._*                     # macOS resource fork súbory
+.Spotlight-V100         # macOS Spotlight index
+.Trashes                # macOS Trash metadáta
+
+# Windows systémové súbory
+ehthumbs.db            # Windows Explorer cache
+Thumbs.db              # Windows thumbnail cache
+Desktop.ini            # Windows desktop konfigurácia
+
+# Linux systémové súbory
+*~                     # Backup súbory
+.directory             # KDE adresárové nastavenia
+
+#==============================================================================
+# IDE A EDITOR KONFIGURAČNÉ SÚBORY
+#==============================================================================
+
+# Visual Studio Code
+.vscode/               # VS Code nastavenia a extensions
+
+# JetBrains IDEs (WebStorm, CLion, etc.)
+.idea/                 # IntelliJ IDEA konfigurácia
+*.iml                  # IntelliJ module súbory
+
+# Vim/Neovim
+*.swp                  # Vim swap súbory
+*.swo                  # Vim swap súbory (variant)
+*~                     # Vim backup súbory
+
+# Emacs
+.#*                    # Emacs lock súbory
+#*#                    # Emacs auto-save súbory
+
+# Sublime Text
+*.sublime-workspace    # Sublime Text workspace
+*.sublime-project      # Sublime Text project
+
+#==============================================================================
+# DEPLOYMENT A ARCHÍVNE SÚBORY
+#==============================================================================
+
+# Kompresované archívy
+*.tar.gz               # Gzipped tar archívy
+*.zip                  # ZIP archívy
+*.rar                  # RAR archívy
+*.7z                   # 7-Zip archívy
+
+# Docker súbory (ak sa používajú)
+.dockerignore          # Docker ignore konfigurácia
+docker-compose.override.yml  # Local Docker Compose overrides
+
+#==============================================================================
+# RUNTIME A PROCESS SÚBORY
+#==============================================================================
+
+# Process ID súbory
+*.pid                  # Process ID súbory
+*.lock                 # Lock súbory
+
+# Temporary súbory
+tmp/                   # Temporary adresár
+temp/                  # Temporary adresár (variant)
+.tmp/                  # Hidden temporary adresár
+
+#==============================================================================
+# BEZPEČNOSTNÉ A CITLIVÉ SÚBORY
+#==============================================================================
+
+# Environment a konfiguračné súbory s citlivými údajmi
+.env                   # Environment variables
+.env.local             # Lokálne environment variables
+.env.production        # Production environment variables
+config.json            # Konfiguračné súbory s potenciálne citlivými údajmi
+
+# SSL certifikáty a kľúče
+*.pem                  # PEM súbory
+*.key                  # Private key súbory
+*.crt                  # Certificate súbory
+
+#==============================================================================
+# PROJEKT-ŠPECIFICKÉ IGNOROVANIE
+#==============================================================================
+
+# MarkNET špecifické súbory
+models/*.bin           # Natrénované modely (môžu byť veľké)
+data/raw/             # Surové trénovacie dáta
+experiments/          # Experimentálne súbory a testing 

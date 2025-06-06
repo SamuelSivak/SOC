@@ -1,26 +1,76 @@
+/*
+ * ══════════════════════════════════════════════════════════════════════════════
+ * MARKNET - PREDIKČNÉ API ENDPOINTY
+ * ══════════════════════════════════════════════════════════════════════════════
+ * 
+ * REST API endpointy pre vykonávanie predikcií s neurónovou sieťou MarkNET.
+ * Podporuje jednotlivé aj batch predikcie s pokročilým preprocessing
+ * obrazových dát a detailným response loggingom.
+ * 
+ * Endpointy:
+ * - POST /api/predict       - Jednotlivá predikcia s preprocessing
+ * - POST /api/predict/batch - Batch predikcia viacerých obrázkov
+ * 
+ * Funkcie:
+ * - Validácia a preprocessing vstupných dát
+ * - Detailné výsledky s confidence scoring
+ * - Entropy výpočty pre uncertainty measurement
+ * - Request tracking a performance monitoring
+ * - Batch processing s error handling
+ * 
+ * Autor: Samuel Sivák
+ * Verzia: 1.0.0
+ * ══════════════════════════════════════════════════════════════════════════════
+ */
+
+//=============================================================================
+// IMPORTY A ZÁVISLOSTI
+//=============================================================================
+
 const express = require('express');
 const router = express.Router();
 const { logger } = require('./logger');
 const { preprocessImage, validateImageInput } = require('./imageProcessor');
 const neuralNetwork = require('./index');
 
-/**
+//=============================================================================
+// JEDNOTLIVÁ PREDIKCIA ENDPOINT
+//=============================================================================
+
+/*
  * POST /api/predict
- * Enhanced prediction endpoint with preprocessing
+ * Hlavný endpoint pre predikciu jednotlivých rukopisných číslic
+ * Vykonáva kompletný preprocessing pipeline a vráti detailné výsledky
+ * 
+ * Body parametre:
+ * - pixels: pole 784 čísel (28x28 pixelov)
+ * - options: objekt s preprocessing nastaveniami
+ * 
+ * Návratové kódy:
+ * - 200: Úspešná predikcia
+ * - 400: Neplatné vstupné dáta
+ * - 500: Chyba v neurónovej sieti
  */
 router.post('/', async (req, res) => {
     const startTime = Date.now();
     const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     try{
-        logger.info('Prediction request received', { requestId });
+        logger.info('Žiadosť o predikciu prijatá', { requestId });
         
         const { pixels, options = {} } = req.body;
         
-        // Validate input
+        //=====================================================================
+        // VALIDÁCIA VSTUPNÝCH DÁT
+        //=====================================================================
+        
+        /*
+         * Kontrola formátu a validity pixelových dát
+         * Overenie počtu pixelov a typov hodnôt
+         */
         const validation = validateImageInput(pixels);
         if(!validation.valid){
-            logger.warn('Invalid input received', { 
+            logger.warn('Neplatné vstupné dáta', { 
                 requestId, 
                 errors: validation.errors,
                 pixelsLength: pixels ? pixels.length : 'undefined'
@@ -32,25 +82,32 @@ router.post('/', async (req, res) => {
             });
         }
         
-        logger.debug('Input validation passed', { 
+        logger.debug('Validácia vstupov úspešná', { 
             requestId,
             pixelCount: pixels.length,
             nonZeroPixels: pixels.filter(p => p > 0).length
         });
         
-        // Preprocess the image
+        //=====================================================================
+        // PREPROCESSING OBRAZOVÝCH DÁT
+        //=====================================================================
+        
+        /*
+         * Aplikácia preprocessing pipeline na vstupné pixely
+         * Normalizácia, centrovanie a threshold aplikácia
+         */
         let processedPixels;
         try{
             const preprocessOptions = {
-                normalize: options.normalize !== false, // default true
-                center: options.center !== false,       // default true
+                normalize: options.normalize !== false,      // default true
+                center: options.center !== false,           // default true
                 threshold: options.threshold || 0.1,
                 applyThresh: options.applyThreshold !== false // default true
             };
             
             processedPixels = preprocessImage(pixels, preprocessOptions);
             
-            logger.debug('Image preprocessing completed', {
+            logger.debug('Preprocessing obrazu dokončený', {
                 requestId,
                 preprocessOptions,
                 originalNonZero: pixels.filter(p => p > 0).length,
@@ -58,7 +115,7 @@ router.post('/', async (req, res) => {
             });
             
         } catch(error){
-            logger.error('Image preprocessing failed', { 
+            logger.error('Preprocessing obrazu zlyhal', { 
                 requestId, 
                 error: error.message 
             });
@@ -69,7 +126,14 @@ router.post('/', async (req, res) => {
             });
         }
         
-        // Make prediction
+        //=====================================================================
+        // VYKONANIE PREDIKCIE
+        //=====================================================================
+        
+        /*
+         * Volanie neurónovej siete pre predikciu číslice
+         * Kontrola validity výstupných pravdepodobností
+         */
         let predictions;
         try{
             predictions = neuralNetwork.predict(processedPixels);
@@ -78,13 +142,13 @@ router.post('/', async (req, res) => {
                 throw new Error(`Invalid prediction result: ${predictions}`);
             }
             
-            logger.debug('Neural network prediction completed', {
+            logger.debug('Predikcia neurónovej siete dokončená', {
                 requestId,
                 predictionsReceived: predictions.length
             });
             
         } catch(error){
-            logger.error('Neural network prediction failed', { 
+            logger.error('Predikcia neurónovej siete zlyhala', { 
                 requestId, 
                 error: error.message 
             });
@@ -96,7 +160,14 @@ router.post('/', async (req, res) => {
             });
         }
         
-        // Process results
+        //=====================================================================
+        // SPRACOVANIE VÝSLEDKOV
+        //=====================================================================
+        
+        /*
+         * Analýza výstupných pravdepodobností a extrakcia metrík
+         * Výpočet confidence, entropy a normalizovaných pravdepodobností
+         */
         const predictedDigit = predictions.reduce((maxIndex, current, currentIndex, arr) => 
             current > arr[maxIndex] ? currentIndex : maxIndex, 0);
         
@@ -104,12 +175,16 @@ router.post('/', async (req, res) => {
         const maxConfidence = Math.max(...predictions);
         const minConfidence = Math.min(...predictions);
         
-        // Calculate normalized probabilities (ensure they sum to 1)
+        // Výpočet normalizovaných pravdepodobností (súčet = 1)
         const sum = predictions.reduce((acc, val) => acc + val, 0);
         const normalizedProbabilities = predictions.map(p => p / sum);
         
         const responseTime = Date.now() - startTime;
         
+        /*
+         * Zostavenie štruktúrovanej odpovede s metadátami
+         * Zahŕňa entropy pre uncertainty measurement
+         */
         const result = {
             prediction: predictedDigit,
             confidence: confidence,
@@ -125,7 +200,7 @@ router.post('/', async (req, res) => {
             }
         };
         
-        logger.info('Prediction completed successfully', {
+        logger.info('Predikcia úspešne dokončená', {
             requestId,
             predictedDigit,
             confidence: confidence.toFixed(4),
@@ -137,7 +212,7 @@ router.post('/', async (req, res) => {
         
     } catch(error){
         const responseTime = Date.now() - startTime;
-        logger.error('Prediction endpoint error', { 
+        logger.error('Chyba v predikčnom endpointe', { 
             requestId, 
             error: error.message, 
             stack: error.stack,
@@ -154,9 +229,23 @@ router.post('/', async (req, res) => {
     }
 });
 
-/**
+//=============================================================================
+// BATCH PREDIKCIA ENDPOINT
+//=============================================================================
+
+/*
  * POST /api/predict/batch
- * Batch prediction endpoint for multiple images
+ * Endpoint pre hromadné predikcie viacerých obrázkov naraz
+ * Optimalizovaný pre efektívne spracovanie malých batch-ov
+ * 
+ * Body parametre:
+ * - images: pole polí pixelov (max 10 obrázkov)
+ * - options: spoločné preprocessing nastavenia
+ * 
+ * Návratové kódy:
+ * - 200: Batch spracovaný (aj s chybami v jednotlivých obrázkov)
+ * - 400: Neplatný formát batch-u
+ * - 500: Kritická chyba v batch processing
  */
 router.post('/batch', async (req, res) => {
     const startTime = Date.now();
@@ -164,6 +253,10 @@ router.post('/batch', async (req, res) => {
     
     try{
         const { images, options = {} } = req.body;
+        
+        //=====================================================================
+        // VALIDÁCIA BATCH PARAMETROV
+        //=====================================================================
         
         if(!Array.isArray(images)){
             return res.status(400).json({
@@ -189,15 +282,24 @@ router.post('/batch', async (req, res) => {
             });
         }
         
-        logger.info('Batch prediction request received', { 
+        logger.info('Žiadosť o batch predikciu prijatá', { 
             requestId, 
             batchSize: images.length 
         });
         
+        //=====================================================================
+        // SPRACOVANIE JEDNOTLIVÝCH OBRÁZKOV
+        //=====================================================================
+        
         const results = [];
         
+        /*
+         * Iterácia cez každý obrázok v batch-i
+         * Individuálne error handling pre robustnosť
+         */
         for(let i = 0; i < images.length; i++){
             try{
+                // Validácia jednotlivého obrázka
                 const validation = validateImageInput(images[i]);
                 if(!validation.valid){
                     results.push({
@@ -208,6 +310,7 @@ router.post('/batch', async (req, res) => {
                     continue;
                 }
                 
+                // Preprocessing a predikcia
                 const processedPixels = preprocessImage(images[i], options);
                 const predictions = neuralNetwork.predict(processedPixels);
                 
@@ -230,10 +333,14 @@ router.post('/batch', async (req, res) => {
             }
         }
         
+        //=====================================================================
+        // ZOSTAVENIE BATCH ODPOVEDE
+        //=====================================================================
+        
         const responseTime = Date.now() - startTime;
         const successCount = results.filter(r => !r.error).length;
         
-        logger.info('Batch prediction completed', {
+        logger.info('Batch predikcia dokončená', {
             requestId,
             batchSize: images.length,
             successCount,
@@ -253,7 +360,7 @@ router.post('/batch', async (req, res) => {
         });
         
     } catch(error){
-        logger.error('Batch prediction error', { 
+        logger.error('Chyba v batch predikcii', { 
             requestId, 
             error: error.message 
         });
@@ -264,5 +371,9 @@ router.post('/batch', async (req, res) => {
         });
     }
 });
+
+//=============================================================================
+// EXPORT ROUTER MODULU
+//=============================================================================
 
 module.exports = router;

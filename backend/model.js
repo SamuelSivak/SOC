@@ -1,3 +1,32 @@
+/*
+ * ══════════════════════════════════════════════════════════════════════════════
+ * MARKNET - SPRÁVA MODELOV NEURÓNOVEJ SIETE
+ * ══════════════════════════════════════════════════════════════════════════════
+ * 
+ * REST API pre správu a manipuláciu modelov neurónovej siete MarkNET.
+ * Poskytuje endpointy pre získanie informácií o modeloch, listing dostupných
+ * modelov a prepínanie medzi rôznymi natrénovanými modelmi MNIST.
+ * 
+ * Endpointy:
+ * - GET  /api/model/info     - Detailné informácie o modeli
+ * - GET  /api/model/models   - Zoznam dostupných modelov
+ * - POST /api/model/switch   - Prepnutie na iný model
+ * 
+ * Funkcie:
+ * - Metadata o architektúre neurónovej siete
+ * - Výkonnostné metriky modelov
+ * - Dynamické prepínanie modelov za behu
+ * - Validácia a error handling
+ * 
+ * Autor: Samuel Sivák
+ * Verzia: 1.0.0
+ * ══════════════════════════════════════════════════════════════════════════════
+ */
+
+//=============================================================================
+// IMPORTY A ZÁVISLOSTI
+//=============================================================================
+
 const express = require('express');
 const router = express.Router();
 const path = require('path');
@@ -5,17 +34,28 @@ const fs = require('fs');
 const { logger } = require('./logger');
 const neuralNetwork = require('./index');
 
-/**
+//=============================================================================
+// MODEL INFO ENDPOINT
+//=============================================================================
+
+/*
  * GET /api/model/info
- * Get detailed model information
+ * Získanie detailných informácií o aktuálne načítanom modeli
+ * Vracia architektúru, výkonnosť, súborové informácie a capabilities
+ * 
+ * Návratové kódy:
+ * - 200: Úspešne získané informácie o modeli
+ * - 404: Model nie je načítaný
+ * - 500: Chyba pri získavaní informácií
  */
 router.get('/info', async (req, res) => {
     try{
         const startTime = Date.now();
         
-        // Get basic model info from native module
+        // Získanie základných informácií z natívneho modulu
         const modelInfo = neuralNetwork.getModelInfo();
         
+        // Kontrola či je model načítaný
         if(!modelInfo.loaded){
             return res.status(404).json({
                 error: 'Model not loaded',
@@ -24,30 +64,51 @@ router.get('/info', async (req, res) => {
             });
         }
         
-        // Get model file information
+        //=====================================================================
+        // ANALÝZA SÚBOROVÝCH INFORMÁCIÍ
+        //=====================================================================
+        
+        /*
+         * Získanie metadát o súbore modelu
+         * Veľkosť, dátumy vytvorenia a modifikácie
+         */
         const modelPath = path.join(__dirname, '../../models/mnist_model.bin');
         let fileStats = null;
         try{
             fileStats = fs.statSync(modelPath);
         } catch(error){
-            logger.warn('Could not read model file stats', { error: error.message });
+            logger.warn('Nepodarilo sa prečítať metadáta súboru modelu', { 
+                error: error.message 
+            });
         }
         
-        // Gather performance metrics (if available)
+        //=====================================================================
+        // VÝKONNOSTNÉ METRIKY
+        //=====================================================================
+        
+        /*
+         * Špecifikácia typických výkonnostných metrík pre MNIST dataset
+         * V produkčnom prostredí by tieto hodnoty pochádzali z trénovacích logov
+         */
         const performanceMetrics = {
-            // These would typically come from training logs or stored metadata
-            // For now, we'll use typical MNIST performance values
             trainingAccuracy: '~98%',
             testingAccuracy: '~92-93%',
             trainingTime: '~2-3 minutes (CPU)',
             note: 'Performance metrics are typical values for MNIST dataset'
         };
         
-        // Model architecture info
+        //=====================================================================
+        // ARCHITEKTÚRA NEURÓNOVEJ SIETE
+        //=====================================================================
+        
+        /*
+         * Detailné informácie o štruktúre a architektúre neurónovej siete
+         * Zahŕňa aktivačné funkcie, optimizer a loss function
+         */
         const architectureInfo = {
             type: 'Multi-layer Perceptron (MLP)',
-            inputSize: 784, // 28x28 pixels
-            outputSize: 10,  // digits 0-9
+            inputSize: 784,    // 28x28 pixelov
+            outputSize: 10,    // číslice 0-9
             numLayers: modelInfo.numLayers,
             activationFunctions: {
                 hidden: 'ReLU',
@@ -57,18 +118,29 @@ router.get('/info', async (req, res) => {
             optimizer: 'Mini-batch Gradient Descent'
         };
         
-        // Dataset information
+        //=====================================================================
+        // INFORMÁCIE O DATASETE
+        //=====================================================================
+        
+        /*
+         * Metadáta o MNIST datasete použitom na trénovanie
+         * Počty obrázkov, rozlíšenie, formát a triedy
+         */
         const datasetInfo = {
             name: 'MNIST',
             description: 'Handwritten digit recognition dataset',
             trainingImages: 60000,
             testingImages: 10000,
             imageSize: '28x28 pixels',
-            classes: 10, // digits 0-9
+            classes: 10,       // číslice 0-9
             format: 'Grayscale'
         };
         
         const responseTime = Date.now() - startTime;
+        
+        //=====================================================================
+        // ZOSTAVENIE ODPOVEDE
+        //=====================================================================
         
         const modelInfoResponse = {
             loaded: true,
@@ -94,7 +166,7 @@ router.get('/info', async (req, res) => {
             timestamp: new Date().toISOString()
         };
         
-        logger.info('Model info requested', {
+        logger.info('Informácie o modeli úspešne poskytnuté', {
             responseTime: responseTime,
             modelLoaded: true
         });
@@ -102,7 +174,10 @@ router.get('/info', async (req, res) => {
         res.json(modelInfoResponse);
         
     } catch(error){
-        logger.error('Model info endpoint error', { error: error.message, stack: error.stack });
+        logger.error('Chyba v endpointe model info', { 
+            error: error.message, 
+            stack: error.stack 
+        });
         res.status(500).json({
             error: 'Failed to get model information',
             message: error.message,
@@ -112,62 +187,132 @@ router.get('/info', async (req, res) => {
     }
 });
 
-/**
+//=============================================================================
+// MODELS LISTING ENDPOINT
+//=============================================================================
+
+/*
  * GET /api/model/models
- * List available models
+ * Získanie zoznamu všetkých dostupných modelov v systéme
+ * Skenuje models/ adresár a vráti informácie o každom modeli
+ * 
+ * Návratové kódy:
+ * - 200: Úspešne získaný zoznam modelov
+ * - 500: Chyba pri čítaní adresára modelov
  */
 router.get('/models', (req, res) => {
     try{
         const modelsDir = path.join(__dirname, '../../models');
         const models = [];
         
+        //=====================================================================
+        // SKENOVANIE MODELS ADRESÁRA
+        //=====================================================================
+        
         try{
             const files = fs.readdirSync(modelsDir);
-            const modelFiles = new Set(); // Use Set to avoid duplicates
+            const modelFiles = new Set(); // Použitie Set na zabránenie duplikátov
             
+            /*
+             * Iterácia cez všetky .bin súbory v models/ adresári
+             * Extrakcia metadát a klasifikácia podľa názvu súboru
+             */
             for(const file of files){
                 if(file.endsWith('.bin') && !modelFiles.has(file)){
                     modelFiles.add(file);
                     const filePath = path.join(modelsDir, file);
                     const stats = fs.statSync(filePath);
                     
-                    // Determine training level and description based on filename
+                    // Určenie úrovne tréningu a popisu na základe názvu súboru
                     let trainingLevel = 'unknown';
-                    let description = 'MNIST model';
-                    let displayName = file.replace('.bin', '');
+                    let descriptions = {
+                        en: 'MNIST model',
+                        sk: 'MNIST model'
+                    };
+                    let displayNames = {
+                        en: file.replace('.bin', ''),
+                        sk: file.replace('.bin', '')
+                    };
                     
+                    /*
+                     * Klasifikácia modelov na základe počtu trénovacích obrázkov
+                     * Rôzne verzie pre rôzne výkonnostné požiadavky s viacjazyčnou podporou
+                     */
                     if(file.includes('300')){
                         trainingLevel = '300 images';
-                        description = 'Basic model trained on 300 images - Lower accuracy but faster training';
-                        displayName = 'Basic (300 images)';
+                        descriptions = {
+                            en: 'Basic model trained on 300 images - Lower accuracy but faster training',
+                            sk: 'Základný model natrénovaný na 300 obrázkoch - Nižšia presnosť ale rýchlejšie trénovanie'
+                        };
+                        displayNames = {
+                            en: 'Basic (300 images)',
+                            sk: 'Základný (300 obrázkov)'
+                        };
                     } else if(file.includes('1500')){
                         trainingLevel = '1500 images';
-                        description = 'Intermediate model trained on 1500 images - Balanced accuracy and training time';
-                        displayName = 'Intermediate (1500 images)';
+                        descriptions = {
+                            en: 'Intermediate model trained on 1500 images - Balanced accuracy and training time',
+                            sk: 'Stredne pokročilý model natrénovaný na 1500 obrázkoch - Vyvážená presnosť a čas trénovania'
+                        };
+                        displayNames = {
+                            en: 'Intermediate (1500 images)',
+                            sk: 'Stredne pokročilý (1500 obrázkov)'
+                        };
                     } else if(file.includes('final')){
                         trainingLevel = '60000 images';
-                        description = 'Final optimized model on complete MNIST dataset - Highest accuracy';
-                        displayName = 'Final Model (60,000 images)';
+                        descriptions = {
+                            en: 'Final optimized model on complete MNIST dataset - Highest accuracy',
+                            sk: 'Finálny optimalizovaný model na kompletnom MNIST datasete - Najvyššia presnosť'
+                        };
+                        displayNames = {
+                            en: 'Final Model (60,000 images)',
+                            sk: 'Finálny model (60 000 obrázkov)'
+                        };
                     } else if(file.includes('best')){
                         trainingLevel = '60000 images';
-                        description = 'Best performance model on complete MNIST dataset - Optimized for accuracy';
-                        displayName = 'Best Model (60,000 images)';
+                        descriptions = {
+                            en: 'Best performance model on complete MNIST dataset - Optimized for accuracy',
+                            sk: 'Najvýkonnejší model na kompletnom MNIST datasete - Optimalizovaný pre presnosť'
+                        };
+                        displayNames = {
+                            en: 'Best Model (60,000 images)',
+                            sk: 'Najlepší model (60 000 obrázkov)'
+                        };
                     } else if(file === 'mnist_model.bin'){
                         trainingLevel = '60000 images';
-                        description = 'Standard MNIST model on complete dataset';
-                        displayName = 'Standard Model (60,000 images)';
+                        descriptions = {
+                            en: 'Standard MNIST model on complete dataset',
+                            sk: 'Štandardný MNIST model na kompletnom datasete'
+                        };
+                        displayNames = {
+                            en: 'Standard Model (60,000 images)',
+                            sk: 'Štandardný model (60 000 obrázkov)'
+                        };
                     } else{
                         trainingLevel = '60000 images';
-                        description = 'MNIST model on complete dataset';
-                        displayName = file.replace('mnist_model_', '').replace('.bin', '').toUpperCase() + ' Model';
+                        descriptions = {
+                            en: 'MNIST model on complete dataset',
+                            sk: 'MNIST model na kompletnom datasete'
+                        };
+                        const modelName = file.replace('mnist_model_', '').replace('.bin', '').toUpperCase();
+                        displayNames = {
+                            en: `${modelName} Model`,
+                            sk: `${modelName} Model`
+                        };
                     }
                     
+                    /*
+                     * Pridanie modelu do zoznamu s kompletnou metadátami
+                     * Zahŕňa veľkosť súboru, dátumy, dostupnosť a viacjazyčné texty
+                     */
                     models.push({
                         filename: file,
                         name: file.replace('.bin', ''),
-                        displayName: displayName,
+                        displayName: displayNames.en,          // Zachovanie pre backward compatibility
+                        displayNames: displayNames,            // Nové viacjazyčné názvy
                         trainingLevel: trainingLevel,
-                        description: description,
+                        description: descriptions.en,          // Zachovanie pre backward compatibility  
+                        descriptions: descriptions,            // Nové viacjazyčné popisy
                         size: `${(stats.size / 1024).toFixed(2)} KB`,
                         created: stats.birthtime,
                         modified: stats.mtime,
@@ -176,29 +321,55 @@ router.get('/models', (req, res) => {
                 }
             }
         } catch(error){
-            logger.error('Error reading models directory', { error: error.message });
+            logger.error('Chyba pri čítaní adresára modelov', { error: error.message });
         }
 
-        // Add placeholder entries only for models that don't exist yet
+        //=====================================================================
+        // OČAKÁVANÉ MODELY (PLACEHOLDER ENTRIES)
+        //=====================================================================
+        
+        /*
+         * Pridanie placeholder záznamov pre modely ktoré ešte nie sú natrénované
+         * Umožňuje frontend-u vedieť o dostupných možnostiach trénovania s viacjazyčnou podporou
+         */
         const expectedModels = [
             {
                 filename: 'mnist_model_300.bin',
                 name: 'mnist_model_300',
                 displayName: 'Basic (300 images)',
+                displayNames: {
+                    en: 'Basic (300 images)',
+                    sk: 'Základný (300 obrázkov)'
+                },
                 trainingLevel: '300 images',
-                description: 'Basic model trained on 300 images - Lower accuracy but faster training'
+                description: 'Basic model trained on 300 images - Lower accuracy but faster training',
+                descriptions: {
+                    en: 'Basic model trained on 300 images - Lower accuracy but faster training',
+                    sk: 'Základný model natrénovaný na 300 obrázkoch - Nižšia presnosť ale rýchlejšie trénovanie'
+                }
             },
             {
                 filename: 'mnist_model_1500.bin',
                 name: 'mnist_model_1500',
                 displayName: 'Intermediate (1500 images)',
+                displayNames: {
+                    en: 'Intermediate (1500 images)',
+                    sk: 'Stredne pokročilý (1500 obrázkov)'
+                },
                 trainingLevel: '1500 images',
-                description: 'Intermediate model trained on 1500 images - Balanced accuracy and training time'
+                description: 'Intermediate model trained on 1500 images - Balanced accuracy and training time',
+                descriptions: {
+                    en: 'Intermediate model trained on 1500 images - Balanced accuracy and training time',
+                    sk: 'Stredne pokročilý model natrénovaný na 1500 obrázkoch - Vyvážená presnosť a čas trénovania'
+                }
             }
         ];
 
+        /*
+         * Pridanie len tých modelov ktoré ešte nie sú v zozname
+         * Označenie ako 'Training...' pre modely v procese trénovania
+         */
         for(const expectedModel of expectedModels){
-            // Only add if not already in the list
             if(!models.find(m => m.filename === expectedModel.filename)){
                 expectedModel.available = false;
                 expectedModel.size = 'Training...';
@@ -208,7 +379,14 @@ router.get('/models', (req, res) => {
             }
         }
 
-        // Sort models by training level and remove any remaining duplicates
+        //=====================================================================
+        // FILTROVANIE A TRIEDENIE
+        //=====================================================================
+        
+        /*
+         * Odstránenie duplikátov a triedenie podľa úrovne trénovania
+         * Zoradenie od najmenších po najväčšie modely
+         */
         const uniqueModels = models.filter((model, index, self) => 
             index === self.findIndex(m => m.filename === model.filename)
         );
@@ -218,19 +396,19 @@ router.get('/models', (req, res) => {
             const aOrder = order[a.trainingLevel] || 99;
             const bOrder = order[b.trainingLevel] || 99;
             if(aOrder !== bOrder) return aOrder - bOrder;
-            // If same training level, sort by filename
+            // Ak rovnaká úroveň trénovania, triediť podľa názvu súboru
             return a.filename.localeCompare(b.filename);
         });
         
         res.json({
             availableModels: uniqueModels,
-            currentModel: 'mnist_model.bin', // Currently loaded model
+            currentModel: 'mnist_model.bin', // Aktuálne načítaný model
             modelsDirectory: 'models/',
             timestamp: new Date().toISOString()
         });
         
     } catch(error){
-        logger.error('Models list endpoint error', { error: error.message });
+        logger.error('Chyba v endpointe zoznamu modelov', { error: error.message });
         res.status(500).json({
             error: 'Failed to list models',
             message: error.message
@@ -238,14 +416,29 @@ router.get('/models', (req, res) => {
     }
 });
 
-/**
+//=============================================================================
+// MODEL SWITCHING ENDPOINT
+//=============================================================================
+
+/*
  * POST /api/model/switch
- * Switch to a different model
+ * Prepnutie na iný dostupný model neurónovej siete
+ * Umožňuje dynamické prepínanie bez restartu servera
+ * 
+ * Body parametre:
+ * - modelName: názov súboru modelu na načítanie
+ * 
+ * Návratové kódy:
+ * - 200: Model úspešne prepnutý
+ * - 400: Chýba názov modelu
+ * - 404: Model nenájdený
+ * - 500: Chyba pri načítavaní modelu
  */
 router.post('/switch', async (req, res) => {
     try{
         const { modelName } = req.body;
         
+        // Validácia požadovaných parametrov
         if(!modelName){
             return res.status(400).json({
                 error: 'Missing model name',
@@ -256,7 +449,10 @@ router.post('/switch', async (req, res) => {
         const modelsDir = path.join(__dirname, '../../models');
         const modelPath = path.join(modelsDir, modelName);
 
-        // Validate model file exists
+        //=====================================================================
+        // VALIDÁCIA EXISTENCIE SÚBORU
+        //=====================================================================
+        
         if(!fs.existsSync(modelPath)){
             return res.status(404).json({
                 error: 'Model not found',
@@ -264,26 +460,33 @@ router.post('/switch', async (req, res) => {
             });
         }
 
-        logger.info('Model switch requested', { 
+        logger.info('Požiadavka na prepnutie modelu', { 
             modelName, 
             modelPath,
             requestedBy: req.ip 
         });
 
-        // Attempt to load the new model
+        //=====================================================================
+        // NAČÍTANIE NOVÉHO MODELU
+        //=====================================================================
+        
+        /*
+         * Pokus o inicializáciu neurónovej siete s novým modelom
+         * Zahŕňa cleanup predchádzajúceho modelu ak je potrebné
+         */
         try{
             const success = neuralNetwork.init(modelPath);
             if(!success){
                 throw new Error('Failed to initialize neural network with new model');
             }
 
-            // Get model information to confirm it loaded correctly
+            // Overenie že model sa správne načítal
             const modelInfo = neuralNetwork.getModelInfo();
             if(!modelInfo.loaded){
                 throw new Error('Model loaded but reports as not loaded');
             }
 
-            logger.info('Model switched successfully', {
+            logger.info('Model úspešne prepnutý', {
                 modelName,
                 numLayers: modelInfo.numLayers,
                 loaded: modelInfo.loaded
@@ -301,7 +504,7 @@ router.post('/switch', async (req, res) => {
             });
 
         } catch(loadError){
-            logger.error('Failed to load new model', {
+            logger.error('Nepodarilo sa načítať nový model', {
                 modelName,
                 error: loadError.message
             });
@@ -314,7 +517,7 @@ router.post('/switch', async (req, res) => {
         }
 
     } catch(error){
-        logger.error('Model switch endpoint error', { 
+        logger.error('Chyba v endpointe prepínania modelov', { 
             error: error.message, 
             stack: error.stack 
         });
@@ -326,5 +529,9 @@ router.post('/switch', async (req, res) => {
         });
     }
 });
+
+//=============================================================================
+// EXPORT ROUTER MODULU
+//=============================================================================
 
 module.exports = router;
