@@ -168,7 +168,7 @@ frontend/
 - **Webserver:** Nginx (odporúčané)
 ## Licencia a autori
 **Autor:** Samuel Sivák  
-**Inštitúcia:** Stredna Odborna skola technicka Michalovce.
+**Inštitúcia:** Stredná Odborná škola technická Michalovce.
 **Rok:** 2025
 ## Changelog
 ### Verzia 1.7.3 (2025)
