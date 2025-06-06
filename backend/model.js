@@ -202,7 +202,7 @@ router.get('/info', async (req, res) => {
  */
 router.get('/models', (req, res) => {
     try{
-        const modelsDir = path.join(__dirname, '../../models');
+        const modelsDir = path.join(__dirname, '../models');
         const models = [];
         
         //=====================================================================
@@ -446,7 +446,7 @@ router.post('/switch', async (req, res) => {
             });
         }
 
-        const modelsDir = path.join(__dirname, '../../models');
+        const modelsDir = path.join(__dirname, '../models');
         const modelPath = path.join(modelsDir, modelName);
 
         //=====================================================================
