@@ -31,8 +31,8 @@
 #include <node_api.h>                    /* Node-API rozhranie */
 #include <stdlib.h>                      /* Správa pamäte */
 #include <string.h>                      /* Stringové operácie */
-#include "../../include/NeuronNetwork.h" /* Hlavičkový súbor neurónovej siete */
-#include "../../include/Data.h"          /* Dátové štruktúry */
+#include "../include/NeuronNetwork.h" /* Hlavičkový súbor neurónovej siete */
+#include "../include/Data.h"          /* Dátové štruktúry */
 
 //=============================================================================
 // GLOBÁLNY STAV MODULU

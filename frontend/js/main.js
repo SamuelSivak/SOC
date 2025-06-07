@@ -20,8 +20,8 @@
 //=============================================================================
 
 const CONFIG = {
-    API_ENDPOINT: 'http://178.128.245.99:3000/api/predict',
-    MODELS_ENDPOINT: 'http://178.128.245.99:3000/api/model',
+    API_ENDPOINT: 'https://samuelsivaksoc.xyz/api/predict',
+    MODELS_ENDPOINT: 'https://samuelsivaksoc.xyz/api/model',
     PREDICTION_DELAY: 500,           // ms delay pre real-time predikciu
     CANVAS_WIDTH: 280,               // šírka kresliacieho plátna
     CANVAS_HEIGHT: 280,              // výška kresliacieho plátna
@@ -637,9 +637,10 @@ class NeuralNumbers{
             const percentageElement = bar.querySelector('.confidence-percentage');
             const progressFill = bar.querySelector('.progress-fill');
 
-            // Aktualizácia textu a šírky
+            // Aktualizácia textu a transform (nie šírky)
             percentageElement.textContent = percentage + '%';
-            progressFill.style.width = percentage + '%';
+            progressFill.style.transform = `scaleY(${prob.toFixed(3)})`;
+            progressFill.style.width = '100%';
 
             // Farebné rozlíšenie podľa hodnoty
             let color = '#e0e0e0'; // Predvolená šedá
@@ -655,7 +656,7 @@ class NeuralNumbers{
             
             // Animácia s miernym oneskorením pre vizuálny efekt
             setTimeout(() => {
-                progressFill.style.transition = 'width 0.3s ease, background-color 0.3s ease';
+                progressFill.style.transition = 'transform 0.35s ease, background-color 0.3s ease';
             }, digit * 20);
         });
     }
