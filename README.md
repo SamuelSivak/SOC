@@ -6,7 +6,7 @@ MarkNET predstavuje kompletnú implementáciu neuronovej siete pre rozpoznávani
 
 **Autor:** Samuel Sivák  
 **Rok:** 2025  
-**Webová aplikácia:** http://samuelsivaksoc.xyz
+**Webová aplikácia:** https://samuelsivaksoc.xyz
 
 ## Architektúra systému
 
