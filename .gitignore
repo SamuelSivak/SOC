@@ -1,0 +1,55 @@
+# Build artefakty
+obj/
+*.o
+bin/
+build/
+*.node
+
+# Node.js
+node_modules/
+npm-debug.log*
+.npm/
+package-lock.json
+
+# Logy
+*.log
+logs/
+
+# OS súbory
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.swp
+*.sublime-workspace
+
+# Archívy
+*.tar.gz
+*.zip
+*.rar
+
+# Runtime
+*.pid
+*.lock
+tmp/
+temp/
+
+# Citlivé súbory
+.env
+.env.*
+*.pem
+*.key
+*.crt
+
+# Modely a dáta
+models/*.bin
+data/raw/
+experiments/
+
+# Dokumentácia
+docs/run.txt
